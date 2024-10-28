@@ -13,7 +13,7 @@ async function registerRoutes(dir: string, app: Application, baseRoute = '') {
     const routePath = baseRoute + '/' + file.name.replace(/\.[tj]s$/, '');
 
     if (file.isDirectory()) {
-      await registerRoutes(fullPath, app, routePath); // Recursive for nested directories
+      await registerRoutes(fullPath, app, routePath); 
     } else {
       const routeHandler = await import(fullPath);
       app.use(routePath, routeHandler.default);
