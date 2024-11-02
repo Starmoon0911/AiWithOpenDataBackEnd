@@ -33,7 +33,7 @@ async function registerRoutes(dir: string, app: Application, baseRoute = '', tab
 (async () => {
   const table = new Table();
   table.setHeading('API Route', 'Method', 'Status');
-  await registerRoutes(path.join(__dirname, 'apis'), app, '', table);
+  await registerRoutes(path.join(__dirname, 'route'), app, '', table);
   console.log(table.toString());
 })();
 
