@@ -11,8 +11,8 @@ const runCheck = () => {
         throw `Configuration for "${MainModel}" is missing or incorrect.`;
     }
     const { apikey, base_url,model } = modelConfig;
-
     console.log(`Model: ${MainModel}:${model}, API Key: ${apikey}, Base URL: ${base_url}`);
+    console.log('all check pass!')
 };
 
 export default runCheck;

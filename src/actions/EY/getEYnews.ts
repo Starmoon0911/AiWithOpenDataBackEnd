@@ -1,7 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import EYnewsModel, { EYnews } from '../../database/schemas/EYnews';
-
 interface NewsItem {
   title: string;
   date: Date;
@@ -21,7 +20,7 @@ async function fetchEYNews(): Promise<NewsItem[]> {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
     const newsItems: NewsItem[] = [];
-
+    console.log('start to fetch news items')
     $('.grid.effect.list-group-item > li').each((_, element) => {
       const title = $(element).find('.title').text().trim();
       const date = convertROCDateToADDate($(element).find('.date').text().trim());
