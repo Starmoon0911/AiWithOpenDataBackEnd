@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import EYnewsModel, { EYnews } from '../database/schemas/EYnews';
+import EYnewsModel, { EYnews } from '../../database/schemas/EYnews';
 
 interface NewsItem {
   title: string;
