@@ -25,6 +25,10 @@ const EYnewsSchema: Schema = new Schema({
         },
         required: false, // 整個 content 是選填的
     },
+    agent: {
+        type: String,
+        required: false
+    }
 });
 
 // 定義 Model
