@@ -41,31 +41,33 @@ export class DefaultAgent {
             if (imgUrl) {
                 try {
                     imageBase64 = await urlToBase64(imgUrl);
-                    console.log('Image successfully converted to Base64');
+                    console.log("Image successfully converted to Base64");
                 } catch (error) {
-                    console.error('Failed to convert image URL to Base64:', error);
-                    throw new Error('Image conversion failed');
+                    console.error("Failed to convert image URL to Base64:", error);
+                    throw new Error("Image conversion failed");
                 }
             }
-
-            const messages: Array<{ role: 'system' | 'user'; content: string }> = [
+            const messages: Array<{ role: "system" | "user"; content: any }> = [
                 {
-                    role: 'system',
+                    role: "system",
                     content: systemPrompt,
                 },
                 {
-                    role: 'user',
-                    content: prompt,
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: prompt,
+                        },
+                        {
+                            type: "image_url",
+                            image_url: {
+                                "url": `${imageBase64}`
+                            },
+                        }
+                    ],
                 },
             ];
-
-            // 如果有圖片，加入至 messages
-            if (imageBase64) {
-                messages.push({
-                    role: 'user',
-                    content: `Here is an image in Base64 format: ${imageBase64}`,
-                });
-            }
 
             const response = await this.llm.chat.completions.create({
                 model: this.model,
@@ -74,8 +76,9 @@ export class DefaultAgent {
 
             return response;
         } catch (error) {
-            console.error('Error invoking LLM:', error);
+            console.error("Error invoking LLM:", error);
             throw error;
         }
     }
+
 }
