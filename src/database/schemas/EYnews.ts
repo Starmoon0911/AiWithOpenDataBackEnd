@@ -11,7 +11,6 @@ interface EYnews extends Document {
         content: string;
     };
 }
-
 // 定義 Schema
 const EYnewsSchema: Schema = new Schema({
     title: { type: String, required: true },
@@ -26,8 +25,7 @@ const EYnewsSchema: Schema = new Schema({
         required: false, // 整個 content 是選填的
     },
     agent: {
-        type: String,
-        required: false
+        // add agent generated content and images and images's description
     }
 });
 

@@ -1,6 +1,6 @@
 import { OpenAI } from 'openai';
 import config from '../../config';
-import urlToBase64 from '../utils/url2base64';
+import urlToBase64 from '../lib/url2base64';
 
 interface Props {
     prompt?: string;
@@ -11,6 +11,15 @@ interface InvokeParams {
     prompt: string;
     systemPrompt: string;
     imgUrl?: string;
+}
+function limitedLog(message, maxLength = 100) {
+    if (typeof message !== 'string') {
+        message = String(message);
+    }
+    if (message.length > maxLength) {
+        message = message.slice(0, maxLength) + '...';
+    }
+    console.log(message);
 }
 
 export class DefaultAgent {
@@ -37,37 +46,57 @@ export class DefaultAgent {
     async invoke({ prompt, systemPrompt, imgUrl }: InvokeParams) {
         try {
             let imageBase64: string | undefined;
-
+            let messages;
             if (imgUrl) {
                 try {
-                    imageBase64 = await urlToBase64(imgUrl);
+                    imageBase64 = await (await urlToBase64(imgUrl)).replace(' charset=utf-8;', '');
+                    console.log(limitedLog(imageBase64, 100))
                     console.log("Image successfully converted to Base64");
                 } catch (error) {
                     console.error("Failed to convert image URL to Base64:", error);
                     throw new Error("Image conversion failed");
                 }
             }
-            const messages: Array<{ role: "system" | "user"; content: any }> = [
-                {
-                    role: "system",
-                    content: systemPrompt,
-                },
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: prompt,
-                        },
-                        {
-                            type: "image_url",
-                            image_url: {
-                                "url": `${imageBase64}`
+            if (imageBase64) {
+                messages = [
+                    {
+                        role: "system",
+                        content: systemPrompt,
+                    },
+                    {
+                        role: "user",
+                        content: [
+                            {
+                                type: "text",
+                                text: prompt,
                             },
-                        }
-                    ],
-                },
-            ];
+                            {
+                                type: "image_url",
+                                image_url: {
+                                    "url": `${imageBase64}`
+                                },
+                            }
+                        ],
+                    },
+                ];
+
+            } else {
+                messages = [
+                    {
+                        role: "system",
+                        content: systemPrompt,
+                    },
+                    {
+                        role: "user",
+                        content: [
+                            {
+                                type: "text",
+                                text: prompt,
+                            }
+                        ],
+                    },
+                ]
+            }
 
             const response = await this.llm.chat.completions.create({
                 model: this.model,
