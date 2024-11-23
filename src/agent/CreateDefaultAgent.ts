@@ -11,7 +11,9 @@ interface InvokeParams {
     prompt: string;
     systemPrompt: string;
     imgUrl?: string;
+    maxTokens?: number | undefined; // 新增可選 maxTokens 參數
 }
+
 function limitedLog(message, maxLength = 100) {
     if (typeof message !== 'string') {
         message = String(message);
@@ -28,13 +30,13 @@ export class DefaultAgent {
 
     constructor({ _model }: { _model?: string }) {
         const { modelConfig } = config;
-        const { model, apikey, base_url } = modelConfig as {
-            model: string;
+        const { textModel, apikey, base_url } = modelConfig as {
+            textModel: string;
             apikey: string;
             base_url: string;
         };
 
-        this.model = _model || model;
+        this.model = _model || textModel;
         this.llm = new OpenAI({
             apiKey: apikey,
             baseURL: base_url,
@@ -43,20 +45,22 @@ export class DefaultAgent {
         console.log(`LLM created for model: ${this.model}`);
     }
 
-    async invoke({ prompt, systemPrompt, imgUrl }: InvokeParams) {
+    async invoke({ prompt, systemPrompt, imgUrl, maxTokens }: InvokeParams) {
         try {
             let imageBase64: string | undefined;
             let messages;
+
             if (imgUrl) {
                 try {
                     imageBase64 = await (await urlToBase64(imgUrl)).replace(' charset=utf-8;', '');
-                    console.log(limitedLog(imageBase64, 100))
+                    console.log(limitedLog(imageBase64, 100));
                     console.log("Image successfully converted to Base64");
                 } catch (error) {
                     console.error("Failed to convert image URL to Base64:", error);
                     throw new Error("Image conversion failed");
                 }
             }
+
             if (imageBase64) {
                 messages = [
                     {
@@ -73,13 +77,12 @@ export class DefaultAgent {
                             {
                                 type: "image_url",
                                 image_url: {
-                                    "url": `${imageBase64}`
+                                    url: `${imageBase64}`,
                                 },
-                            }
+                            },
                         ],
                     },
                 ];
-
             } else {
                 messages = [
                     {
@@ -92,15 +95,16 @@ export class DefaultAgent {
                             {
                                 type: "text",
                                 text: prompt,
-                            }
+                            },
                         ],
                     },
-                ]
+                ];
             }
 
             const response = await this.llm.chat.completions.create({
                 model: this.model,
                 messages,
+                max_tokens: maxTokens, // 傳遞 maxTokens 至 API 請求
             });
 
             return response;
@@ -109,5 +113,4 @@ export class DefaultAgent {
             throw error;
         }
     }
-
 }
