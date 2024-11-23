@@ -4,6 +4,7 @@ import EYnewsModel, { Image } from '../../database/schemas/EYnews';
 import generateImagesDescription from '../../agent/EY/generateImagesDescription';
 import { Agent } from 'http';
 import generateTitle from '../../agent/EY/generateTitle';
+import generateContent from '../../agent/EY/generateContent';
 
 // 爬取單條新聞的詳細內容
 async function fetchNewsContent(url: string): Promise<{ content: string; images: Image[] } | null> {
@@ -53,12 +54,23 @@ async function updateImageDescriptions(images: Image[]): Promise<void> {
 }
 async function updateEYnewsTitle(newsItem) {
   const { title, content } = newsItem;
-  const generatedTitle = await generateTitle(content, title);
-  if (generatedTitle?.choices?.[0]?.message?.content) {
-    console.log(`Generated title: ${generatedTitle.choices[0].message.content}`);
-    newsItem.agent.title = generatedTitle.choices[0].message.content;
-  } else {
-    console.warn(`No valid content generated for title: ${title}`);
+  if (!newsItem.agent?.title) {
+    const generatedTitle = await generateTitle(content, title);
+    if (generatedTitle?.choices?.[0]?.message?.content) {
+      console.log(`Generated title: ${generatedTitle.choices[0].message.content}`);
+      newsItem.agent.title = generatedTitle.choices[0].message.content;
+    } else {
+      console.warn(`No valid content generated for title: ${title}`);
+    }
+  }
+}
+async function generateEYnewsContent(newsItem) {
+  if (!newsItem.agent?.content) {
+    const generatedContent = await generateContent(newsItem.content, newsItem.images);
+    if (generatedContent?.choices?.[0]?.message?.content) {
+      console.log(`Generated content: ${generatedContent.choices[0].message.content}`);
+      newsItem.agent.content = generatedContent.choices[0].message.content;
+    }
   }
 }
 // 更新 MongoDB 中的新聞詳細內容
@@ -71,7 +83,9 @@ async function updateEYnewsContent() {
         { 'images.desc': { $exists: false } }, // 有圖片但缺少描述
         { 'images.desc': '' }, // 有描述但為空
         { 'agent.title': { $exists: false } }, // 沒有標題,
-        { 'agent.title': '' } // 有標題但為空
+        { 'agent.title': '' } ,// 有標題但為空
+        { 'agent.content': { $exists: false } }, 
+        { 'agent.content': '' } 
       ]
     });
 
@@ -92,10 +106,10 @@ async function updateEYnewsContent() {
           continue; // 如果無法抓取內容，跳過此新聞項目
         }
       }
-      await updateEYnewsTitle(newsItem)
+      await updateEYnewsTitle(newsItem);
       // 更新圖片描述
       await updateImageDescriptions(newsItem.images);
-
+      await generateEYnewsContent(newsItem);
       // 儲存更新結果
       await newsItem.save();
       console.log(`Updated content for: ${newsItem.title}`);
