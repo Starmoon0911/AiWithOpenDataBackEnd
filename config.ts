@@ -1,15 +1,15 @@
 const agent = {
-    useModel: "ollama",//main model.Input:gemnni,ollama,gork,opeani ,required
+    useModel: "gemini",//main model.Input:gemnni,ollama,gork,opeani ,required
     //if u aren't use this model u can don't change the value
     gemini: {
-        textModel: "",
-        visionModel: "",
+        textModel: "gemini-1.5-flash",
+        visionModel: "gemini-1.5-flash",
         apikey: process.env.gemini_apikey || "",
-        base_url: ""
+        base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
     },
     ollama: {
         textModel: "llama3",
-        visionModel: "",
+        visionModel: "llava",
         apikey: process.env.ollama_apikey || "ollama",
         base_url: "http://localhost:11434/v1"
     },

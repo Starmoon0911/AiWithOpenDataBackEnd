@@ -2,6 +2,8 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import EYnewsModel, { Image } from '../../database/schemas/EYnews';
 import generateImagesDescription from '../../agent/EY/generateImagesDescription';
+import { Agent } from 'http';
+import generateTitle from '../../agent/EY/generateTitle';
 
 // 爬取單條新聞的詳細內容
 async function fetchNewsContent(url: string): Promise<{ content: string; images: Image[] } | null> {
@@ -49,7 +51,16 @@ async function updateImageDescriptions(images: Image[]): Promise<void> {
     }
   }
 }
-
+async function updateEYnewsTitle(newsItem) {
+  const { title, content } = newsItem;
+  const generatedTitle = await generateTitle(content, title);
+  if (generatedTitle?.choices?.[0]?.message?.content) {
+    console.log(`Generated title: ${generatedTitle.choices[0].message.content}`);
+    newsItem.agent.title = generatedTitle.choices[0].message.content;
+  } else {
+    console.warn(`No valid content generated for title: ${title}`);
+  }
+}
 // 更新 MongoDB 中的新聞詳細內容
 async function updateEYnewsContent() {
   try {
@@ -58,7 +69,9 @@ async function updateEYnewsContent() {
       $or: [
         { content: { $exists: false } }, // 沒有文章內容
         { 'images.desc': { $exists: false } }, // 有圖片但缺少描述
-        { 'images.desc': '' } // 有描述但為空
+        { 'images.desc': '' }, // 有描述但為空
+        { 'agent.title': { $exists: false } }, // 沒有標題,
+        { 'agent.title': '' } // 有標題但為空
       ]
     });
 
@@ -79,7 +92,7 @@ async function updateEYnewsContent() {
           continue; // 如果無法抓取內容，跳過此新聞項目
         }
       }
-
+      await updateEYnewsTitle(newsItem)
       // 更新圖片描述
       await updateImageDescriptions(newsItem.images);
 
