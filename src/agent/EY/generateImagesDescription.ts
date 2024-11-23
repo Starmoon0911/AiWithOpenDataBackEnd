@@ -1,4 +1,3 @@
-import EYImagesSchema from "../../database/schemas/EYImages"
 import { DefaultAgent } from "../CreateDefaultAgent"
 import fs from 'fs'
 import path from "path"
@@ -10,6 +9,6 @@ export default function generateImagesDescription(images: string) {
         systemPrompt: prompt,
         prompt: '請照系統提示詞執行操作',
         imgUrl: images
-    })
+    });
     return response;
 }

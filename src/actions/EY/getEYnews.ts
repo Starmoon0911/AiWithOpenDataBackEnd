@@ -39,7 +39,6 @@ async function fetchEYNews(): Promise<NewsItem[]> {
 
     for (const newsItem of newsItems) {
       const exists = await EYnewsModel.findOne({ title: newsItem.title });
-      console.log(newsItem)
       if (exists) {
         // If we find a duplicate, stop processing further items
         break;
