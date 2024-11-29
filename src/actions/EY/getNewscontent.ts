@@ -1,10 +1,10 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import EYnewsModel, { Image } from '../../database/schemas/EYnews';
-import generateImagesDescription from '../../agent/EY/generateImagesDescription';
+import generateImagesDescription from '../../agent/news/generateImagesDescription';
 import { Agent } from 'http';
-import generateTitle from '../../agent/EY/generateTitle';
-import generateContent from '../../agent/EY/generateContent';
+import generateTitle from '../../agent/news/generateTitle';
+import generateContent from '../../agent/news/generateContent';
 
 // 爬取單條新聞的詳細內容
 async function fetchNewsContent(url: string): Promise<{ content: string; images: Image[] } | null> {
