@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import fetchEYNews from '../actions/EY/getEYnews';
-import updateEYnewsContent from '../actions/EY/getEYNewscontent';
+import fetchEYNews from '../actions/EY/getNews';
+import updateEYnewsContent from '../actions/EY/getNewscontent';
 cron.schedule('0 17 * * *', () => {    
     console.log('Starting to fetch EY news...');
     fetchEYNews();

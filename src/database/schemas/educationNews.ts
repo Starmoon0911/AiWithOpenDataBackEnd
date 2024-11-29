@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import type Image from '../../types/Image'
-interface EYnews extends Document {
+import type Image from '../../types/Image';
+
+interface EducationNews extends Document {
   title: string;
   date: Date;
   description?: string;
@@ -10,7 +11,7 @@ interface EYnews extends Document {
 }
 
 // 定義 Schema
-const EYnewsSchema: Schema = new Schema({
+const EducationNewsSchema: Schema = new Schema({
   title: { type: String, required: true },
   date: { type: Date, required: true },
   description: { type: String, required: false },
@@ -29,7 +30,7 @@ const EYnewsSchema: Schema = new Schema({
 });
 
 // 定義 Model
-const EYnewsModel = mongoose.model<EYnews>('EYnews', EYnewsSchema);
+const EducationNewsModel = mongoose.model<EducationNews>('EducationNews', EducationNewsSchema);
 
-export { EYnews, Image };
-export default EYnewsModel;
+export { EducationNews, Image };
+export default EducationNewsModel;

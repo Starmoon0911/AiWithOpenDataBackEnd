@@ -1,3 +1,7 @@
+const RSS = {
+    education: 'https://www.edu.tw/Rss_News.aspx?n=9E7AC85F1954DDA8',
+    executive: "https://www.ey.gov.tw/RSS_Content.aspx?ModuleType=3"
+}
 const agent = {
     useModel: "gemini",//main model.Input:gemnni,ollama,gork,opeani ,required
     //if u aren't use this model u can don't change the value
@@ -26,7 +30,6 @@ const agent = {
         base_url: ""
     }
 }
-const modelConfig = agent[agent.useModel as keyof typeof agent];
 // 函數：取得當前模型設定
 function getCurrentConfig() {
     const currentModel = agent.useModel as keyof typeof agent;
@@ -42,4 +45,5 @@ export default {
     agent: agent,
     models: supportModel,
     modelConfig: getCurrentConfig(),
+    RSS: RSS
 };
