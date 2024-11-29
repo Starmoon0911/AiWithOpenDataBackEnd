@@ -8,10 +8,10 @@ const agent = {
         base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
     },
     ollama: {
-        textModel: "llama3",
+        textModel: "qwen2.5-coder:32b",
         visionModel: "llava",
         apikey: process.env.ollama_apikey || "ollama",
-        base_url: "http://localhost:11434/v1"
+        base_url: "https://5eb4-34-132-94-102.ngrok-free.app/v1"
     },
     grok: {
         textModel: "grok-beta",
