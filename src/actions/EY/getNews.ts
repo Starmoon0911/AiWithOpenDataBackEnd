@@ -1,5 +1,5 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import fetchRssFeed from '../FetchRssFeed';
+import config from '../../../config';
 import EYnewsModel, { EYnews } from '../../database/schemas/EYnews';
 interface NewsItem {
   title: string;
@@ -14,44 +14,29 @@ function convertROCDateToADDate(rocDate: string): Date {
   return new Date(adYear, month - 1, day);
 }
 
-async function fetchEYNews(): Promise<NewsItem[]> {
-  try {
-    const url = 'https://www.ey.gov.tw/Page/6485009ABEC1CB9C';
-    const { data } = await axios.get(url);
-    const $ = cheerio.load(data);
-    const newsItems: NewsItem[] = [];
-    console.log('start to fetch news items')
-    $('.grid.effect.list-group-item > li').each((_, element) => {
-      const title = $(element).find('.title').text().trim();
-      const date = convertROCDateToADDate($(element).find('.date').text().trim());
-      const description = $(element).find('p').text().trim();
-      const link = $(element).find('a').attr('href')?.trim();
-
-      if (link) {
-        newsItems.push({
-          title,
-          date,
-          description,
-          link: `https://www.ey.gov.tw${link}`,
-        });
-      }
-    });
-
-    for (const newsItem of newsItems) {
-      const exists = await EYnewsModel.findOne({ title: newsItem.title });
-      if (exists) {
-        // If we find a duplicate, stop processing further items
-        break;
-      }
-      const news = new EYnewsModel(newsItem);
-      await news.save();
+async function checkAndInsertEYNews(news: NewsItem[]) {
+  const _News = [];
+  for (const New of news) {
+    const exist = await EYnewsModel.findOne({ link: New.link });
+    if (!exist) {
+      _News.push({
+        title: New.title,
+        link: New.link,
+        date: new Date(New.date), 
+        description: New.description,
+      });
+      await EYnewsModel.insertMany(_News); 
     }
-
-    return newsItems;
-  } catch (error) {
-    console.error('Error fetching news:', error);
-    return [];
   }
+  return _News;
 }
 
+
+async function fetchEYNews() {
+  const url = config.RSS.executive;
+  return fetchRssFeed(url, '2day').then(async (news: NewsItem[]) => {
+    const _news = await checkAndInsertEYNews(news);
+    return _news;
+  });
+}
 export default fetchEYNews;
