@@ -1,4 +1,3 @@
-// src/app.ts
 import express, { Application, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs/promises';
@@ -19,9 +18,9 @@ async function registerRoutes(dir: string, app: Application, baseRoute = '', tab
       await registerRoutes(fullPath, app, routePath, table);
     } else {
       try {
-        // 特別處理 (root).ts，將其路由設為根路徑 /
+        // 特別處理 (root).ts，將其路由設為當前目錄路徑
         if (file.name === '(root).ts') {
-          routePath = '/'; // 將 (root).ts 註冊到根路徑
+          routePath = baseRoute; // 將 (root).ts 註冊到當前目錄根路徑
         } else {
           // 處理動態路由：[id].ts -> :id
           routePath = routePath.replace(/\[([^\]]+)\]/g, ':$1');

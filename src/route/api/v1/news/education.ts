@@ -1,4 +1,4 @@
-import EYnewsModel from '../../../../database/schemas/EYnews';
+import EducationNewsModel from '../../../../database/schemas/educationNews';
 import express from 'express';
 import { isValidObjectId } from 'mongoose';
 import type { NewsItem } from '../../../../types/NewsItem';  // 確保 NewsItem 定義正確
@@ -23,7 +23,7 @@ router.get('/', async (req: express.Request, res: express.Response) => {
         if (id) {
             query._id = id;
             // 查詢單一資料並強制轉換為 NewsItem 型別
-            const newsItem = await EYnewsModel.findOne(query).exec();
+            const newsItem = await EducationNewsModel.findOne(query).exec();
             if (!newsItem) {
                 return res.status(404).json({ success: false, data: "找不到符合的資料!" });
             }
@@ -31,8 +31,8 @@ router.get('/', async (req: express.Request, res: express.Response) => {
         }
 
         // 查詢多筆資料並強制轉換為 NewsItem[] 型別
-        const news: NewsItem[] = await EYnewsModel.find(query).sort({ date: -1 }).skip(skip).limit(limit).exec();
-        const total = await EYnewsModel.countDocuments(query);
+        const news: NewsItem[] = await EducationNewsModel.find(query).sort({ date: -1 }).skip(skip).limit(limit).exec();
+        const total = await EducationNewsModel.countDocuments(query);
         const totalPages = Math.ceil(total / limit);
 
         if (news.length === 0) {
