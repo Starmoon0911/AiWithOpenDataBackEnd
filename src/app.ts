@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Application } from 'express';
 import path from 'path';
 import fs from 'fs/promises';
 import Table from 'ascii-table';
@@ -13,35 +13,38 @@ async function registerRoutes(dir: string, app: Application, baseRoute = '', tab
     const fullPath = path.join(dir, file.name);
     let routePath = baseRoute + '/' + file.name.replace(/\.[tj]s$/, ''); // 去除副檔名
 
+    console.log(`Scanning: ${fullPath}`); // Debug: 確認檔案路徑
+
     if (file.isDirectory()) {
       // 如果是資料夾，遞歸處理
       await registerRoutes(fullPath, app, routePath, table);
     } else {
       try {
-        // 特別處理 (root).ts，將其路由設為當前目錄路徑
         if (file.name === '(root).ts') {
-          routePath = baseRoute; // 將 (root).ts 註冊到當前目錄根路徑
+          routePath = baseRoute || '/'; // 空路徑設為 '/'
         } else {
-          // 處理動態路由：[id].ts -> :id
-          routePath = routePath.replace(/\[([^\]]+)\]/g, ':$1');
+          routePath = routePath.replace(/\[([^\]]+)\]/g, ':$1'); // 處理動態路由
         }
 
-        // 動態匯入路由處理程式
         const routeHandler = await import(fullPath);
 
-        // 確保路由處理程式有 `default` 屬性
         if (routeHandler.default) {
           app.use(routePath, routeHandler.default);
 
-          // 註冊完成後在表格中顯示狀態
-          routeHandler.default.stack.forEach((middleware: any) => {
-            if (middleware.route) {
-              const methods = Object.keys(middleware.route.methods)
-                .map(method => method.toUpperCase())
-                .join(', ');
-              table.addRow(routePath, methods, 'Registered');
-            }
-          });
+          // 註冊路由表格
+          if (routeHandler.default.stack) {
+            routeHandler.default.stack.forEach((middleware: any) => {
+              if (middleware.route) {
+                const methods = Object.keys(middleware.route.methods)
+                  .map(method => method.toUpperCase())
+                  .join(', ');
+                table.addRow(routePath, methods, 'Registered');
+              } else {
+                // 處理未明確 HTTP 方法的路由
+                table.addRow(routePath, 'ANY', 'Registered');
+              }
+            });
+          }
         }
       } catch (error) {
         console.error(`Failed to load route from ${fullPath}:`, error);
