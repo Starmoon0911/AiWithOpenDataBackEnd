@@ -4,7 +4,7 @@ import fetchEductionNews from "../src/actions/education/getNews";
 import FetchEducationNewsContent from "../src/actions/education/getNewscontent";
 import generateEducationNewsItem from "../src/actions/education/generateNewsItem";
 
-async function main() {
+export default async function getEducation() {
     await connectDatabase()
     console.log("Step 1:獲取基本的訊息")
     const step1response = await fetchEductionNews();
@@ -19,5 +19,3 @@ async function main() {
     console.log(`Step 3:Done!\n\n`)
     await mongoose.disconnect();
 }
-
-main();
