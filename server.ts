@@ -11,7 +11,7 @@ app.use(helmet());
 app.use(express.json());
 require('dotenv').config()
 const PORT = process.env.PORT || 9000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running at Port:${PORT}`);
     connectDatabase();
     runCheck()

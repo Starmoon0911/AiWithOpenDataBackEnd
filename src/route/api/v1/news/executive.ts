@@ -31,7 +31,10 @@ router.get('/', async (req: express.Request, res: express.Response) => {
         }
 
         // 查詢多筆資料並強制轉換為 NewsItem[] 型別
-        const news: NewsItem[] = await EYnewsModel.find(query).sort({ date: -1 }).skip(skip).limit(limit).exec();
+        const news: NewsItem[] = (await EYnewsModel.find(query).sort({ date: -1 }).skip(skip).limit(limit).exec()) .map(news => ({
+            ...news.toObject(),
+            source: '行政院'
+        }));;
         const total = await EYnewsModel.countDocuments(query);
         const totalPages = Math.ceil(total / limit);
 
@@ -45,10 +48,12 @@ router.get('/', async (req: express.Request, res: express.Response) => {
 
         res.status(200).json({
             success: true,
+            source: "行政院",
             data: news,
             total: total,
             page: page,
             totalPages: totalPages,
+
         });
     } catch (error) {
         res.status(500).json({ success: false, data: error.message });

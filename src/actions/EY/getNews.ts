@@ -19,13 +19,15 @@ async function checkAndInsertEYNews(news: NewsItem[]) {
   for (const New of news) {
     const exist = await EYnewsModel.findOne({ link: New.link });
     if (!exist) {
-      _News.push({
+
+      const saved = new EYnewsModel({
         title: New.title,
         link: New.link,
-        date: new Date(New.date), 
+        date: new Date(New.date),
         description: New.description,
       });
-      await EYnewsModel.insertMany(_News); 
+      _News.push(saved);
+      await saved.save();
     }
   }
   return _News;
@@ -35,6 +37,7 @@ async function checkAndInsertEYNews(news: NewsItem[]) {
 async function fetchEYNews() {
   const url = config.RSS.executive;
   return fetchRssFeed(url, '2day').then(async (news: NewsItem[]) => {
+    console.log(news)
     const _news = await checkAndInsertEYNews(news);
     return _news;
   });
