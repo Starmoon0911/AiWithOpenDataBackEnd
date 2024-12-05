@@ -42,9 +42,14 @@ router.get('/', async (req: express.Request, res: express.Response) => {
             return res.status(200).json({ success: true, data: [], message: "沒有符合條件的資料" });
         }
 
-        if (page === totalPages) {
-            return res.status(200).json({ success: false, data: "已經沒有更多資料了!" });
-        }
+        if (page > totalPages) {
+            return res.status(200).json({
+              success: true,
+              data: [],
+              message: "已經沒有更多資料了!"
+            });
+          }
+          
 
         res.status(200).json({
             success: true,
