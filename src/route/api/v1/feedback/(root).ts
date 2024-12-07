@@ -4,7 +4,7 @@ import Feedback from '../../../../database/schemas/feedback';
 router.post('/', async (req, res) => {
     const { emoji, feedback, newsID } = req.body;
     try {
-        if (!emoji || !feedback || newsID) {
+        if (!emoji || !feedback || !newsID) {
             return res.status(400).json({ success: false, message: '缺少必要參數' });
         }
         const newFeedback = new Feedback({
