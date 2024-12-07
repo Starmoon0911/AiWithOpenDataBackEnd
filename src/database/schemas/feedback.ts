@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import mongoose, { Schema, Document } from 'mongoose';
 
 // 定義 Feedback 的接口
@@ -7,6 +8,7 @@ interface FeedbackDocument extends Document {
   feedbackText: string; // 用戶的意見文字
   submittedAt: Date; // 提交時間
   userId?: string; // 可選，用於標記提交用戶
+  newsID: string; // 可選，用於標記提交的新聞ID
 }
 
 // 定義 Mongoose 的 Schema
@@ -31,10 +33,10 @@ const FeedbackSchema = new Schema<FeedbackDocument>({
     type: Date,
     default: Date.now, // 默認為當前時間
   },
-  userId: {
-    type: String, // 可選，用於標記是哪個用戶提交
-    required: false,
-  },
+  newsID: {
+    type: String,
+    required: true,
+  }
 });
 
 // 創建 Mongoose 模型
