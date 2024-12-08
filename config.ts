@@ -3,7 +3,7 @@ const RSS = {
     executive: "https://www.ey.gov.tw/RSS_Content.aspx?ModuleType=3"
 }
 const agent = {
-    useModel: "gemini",//main model.Input:gemnni,ollama,gork,opeani ,required
+    useModel: "g4f",//main model.Input:gemnni,ollama,gork,opeani ,required
     //if u aren't use this model u can don't change the value
     gemini: {
         textModel: "gemini-1.5-flash",
@@ -28,6 +28,13 @@ const agent = {
         visionModel: "",
         apikey: process.env.openai_apikey || "",
         base_url: ""
+    },
+
+    g4f: { //visit https://github.com/xtekky/gpt4free
+        textModel: "",
+        visionModel: "",
+        apikey: "",
+        base_url: ""
     }
 }
 // 函數：取得當前模型設定
@@ -39,7 +46,8 @@ const supportModel = [
     "grok",
     "gemini",
     "openai",
-    "ollama"
+    "ollama",
+    "g4f"
 ]
 export default {
     agent: agent,
